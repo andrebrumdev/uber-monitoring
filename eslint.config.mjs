@@ -1,5 +1,5 @@
-import tseslint from '@electron-toolkit/eslint-config-ts'
 import eslintConfigPrettier from '@electron-toolkit/eslint-config-prettier'
+import tseslint from '@electron-toolkit/eslint-config-ts'
 import eslintPluginReact from 'eslint-plugin-react'
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks'
 import eslintPluginReactRefresh from 'eslint-plugin-react-refresh'
@@ -32,7 +32,8 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off', // Permite qualquer uso de any
       'no-console': 'off', // Permite console.log()
       '@typescript-config/consistent-casing': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off'
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      'unused-imports/no-unused-imports': 'warn'
     }
   },
   eslintConfigPrettier

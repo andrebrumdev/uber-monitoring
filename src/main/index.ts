@@ -1,6 +1,6 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { fetchEmails } from './emailHandler'
 
@@ -67,9 +67,9 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  ipcMain.handle('fetchEmails', async (_event, email, password, month, year) => {
+  ipcMain.handle('fetchEmails', async (_event, month, year) => {
     try {
-      const data = await fetchEmails(email, password, month, year)
+      const data = await fetchEmails(month, year)
       return data
     } catch (error: unknown) {
       return { error: (error as Error).message }

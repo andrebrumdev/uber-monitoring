@@ -7,7 +7,7 @@
       "@/*": [
         "./src/renderer/src/*"
       ]
-    }
+    },
   },
   "references": [
     {

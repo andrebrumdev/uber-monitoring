@@ -3,3 +3,8 @@ semi: false
 printWidth: 100
 trailingComma: none
 endOfLine: 'lf'
+plugins:
+  - '@trivago/prettier-plugin-sort-imports'
+  - 'prettier-plugin-organize-imports'
+importOrderSeparation: true
+importOrderSortSpecifiers: true

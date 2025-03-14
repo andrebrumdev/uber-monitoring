@@ -1,15 +1,13 @@
 'use client'
 
-import * as React from 'react'
-import { Label, Pie, PieChart, PieProps } from 'recharts'
-
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart'
-import { Formatter } from 'recharts/types/component/DefaultTooltipContent'
+import * as React from 'react'
+import { Label, Pie, PieChart } from 'recharts'
 
 interface Props<T> {
   data: T[]

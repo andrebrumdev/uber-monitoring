@@ -1,17 +1,17 @@
-import React from 'react'
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableRow,
-  TableHead,
+  TableCaption,
   TableCell,
-  TableCaption
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table'
 import { formatToBRL } from 'brazilian-values'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './components/ui/collapsible'
-import { TableDetails } from './TableDetails'
 import { ChevronDown } from 'lucide-react'
+import React from 'react'
+import { TableDetails } from './TableDetails'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './components/ui/collapsible'
 
 export const TableEmail: React.FC<{ emails?: Email[] }> = ({ emails }) => {
   if (!emails || emails.length === 0) return null

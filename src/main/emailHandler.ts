@@ -1,7 +1,7 @@
-import { ImapFlow } from 'imapflow'
-import { Readable, Transform, TransformCallback } from 'stream'
 import * as cheerio from 'cheerio'
+import { ImapFlow } from 'imapflow'
 import { ParsedMail, simpleParser } from 'mailparser'
+import { Readable, Transform, TransformCallback } from 'stream'
 
 async function connectToGmail() {
   try {

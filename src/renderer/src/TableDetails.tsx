@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableHeader, TableRow } from './components/ui/table'
+import { Table, TableBody, TableHeader } from './components/ui/table'
 
 const RideSelectionCard: React.FC<{ from?: Destination; to?: Destination }> = ({ from, to }) => {
   return (

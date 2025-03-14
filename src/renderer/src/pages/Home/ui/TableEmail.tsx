@@ -1,3 +1,4 @@
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   Table,
   TableBody,
@@ -11,7 +12,6 @@ import { formatToBRL } from 'brazilian-values'
 import { ChevronDown } from 'lucide-react'
 import React from 'react'
 import { TableDetails } from './TableDetails'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './components/ui/collapsible'
 
 export const TableEmail: React.FC<{ emails?: Email[] }> = ({ emails }) => {
   if (!emails || emails.length === 0) return null

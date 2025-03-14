@@ -1,3 +1,4 @@
+import { PieChartTest } from '@/components/pie'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -9,8 +10,7 @@ import {
 import { formatToBRL } from 'brazilian-values'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { TableEmail } from './TableEmail'
-import { PieChartTest } from './pie'
+import { TableEmail } from './ui/TableEmail'
 
 function genYears(yearStart: number, yearEnd: number): string[] {
   const years: string[] = []

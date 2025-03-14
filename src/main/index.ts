@@ -32,7 +32,8 @@ function createWindow(): void {
           frame: true,
           resizable: true,
           fullscreenable: false,
-          autoHideMenuBar: true
+          autoHideMenuBar: true,
+          alwaysOnTop: true
         }
       }
     } else {
@@ -63,9 +64,6 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
 
   ipcMain.handle('fetchEmails', async (_event, month, year) => {
     try {

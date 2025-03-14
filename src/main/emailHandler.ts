@@ -34,7 +34,7 @@ function cleanHtml(html: string): [string, string] {
 }
 
 function extractEmailData(textContent = '', htmlContent = ''): EmailData {
-  console.log(textContent)
+  // console.log(textContent)
 
   function extractWithRegex(pattern: RegExp): string {
     const match = pattern.exec(textContent)
@@ -98,7 +98,7 @@ function extractEmailData(textContent = '', htmlContent = ''): EmailData {
     rating: extractNumberWithRegex(/(\d+\.\d+)+Avaliação/i),
     paymentMethod:
       extractWithRegex(
-        /(Mastercard|Visa|Elo|Amex|Nubank|diners|discover|jcb|aura|hipercard|maestro)/i
+        /(Mastercard|Visa|Elo|Amex|Nubank|diners|discover|jcb|aura|hipercard|maestro|pix)/i
       ) || 'Desconhecido',
     total: extractNumberWithRegex(/Total.*?R\$\D*([\d.,]+)/i),
     subtotal: extractNumberWithRegex(/Subtotal.*?R\$\D*([\d.,]+)/i),

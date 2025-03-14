@@ -126,3 +126,20 @@
 html {
   min-height: 100dvh;
 }
+
+@keyframes dash-animation {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}
+.animate-dash {
+  border-right: 2px dashed transparent;
+  background-image: linear-gradient(to bottom, transparent 50%, gray 50%);
+  background-size: 4px 8px;
+  background-clip: border-box;
+  animation: dash-animation 1s linear infinite;
+}
+

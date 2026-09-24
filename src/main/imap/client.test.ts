@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { AppError } from '../errors'
-import { toImapAppError } from './client'
+import { createImapClient, toImapAppError } from './client'
+
+describe('createImapClient', () => {
+  it('registra um listener de erro para evitar crash em erro de socket pós-conexão', () => {
+    const client = createImapClient({ user: 'a@b.com', pass: 'senha' })
+    expect(client.listenerCount('error')).toBeGreaterThan(0)
+  })
+})
 
 describe('toImapAppError', () => {
   it('reconhece falha de autenticação do imapflow', () => {
@@ -19,6 +26,21 @@ describe('toImapAppError', () => {
       expect(toImapAppError(Object.assign(new Error('x'), { code })).code).toBe('NETWORK')
     }
   )
+
+  it.each([
+    'SELF_SIGNED_CERT_IN_CHAIN',
+    'DEPTH_ZERO_SELF_SIGNED_CERT',
+    'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+    'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+    'CERT_HAS_EXPIRED',
+    'ERR_TLS_CERT_ALTNAME_INVALID'
+  ])('trata %s como bloqueio de conexão segura (TLS)', (code) => {
+    const result = toImapAppError(Object.assign(new Error('x'), { code }))
+    expect(result.code).toBe('NETWORK')
+    expect(result.message).toBe(
+      'A conexão segura com o Gmail foi bloqueada. Um antivírus ou proxy pode estar interceptando a conexão.'
+    )
+  })
 
   it('mantém AppError como está', () => {
     const original = new AppError('INVALID_INPUT', 'x')

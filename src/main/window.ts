@@ -2,10 +2,10 @@ import { is } from '@electron-toolkit/utils'
 import { BrowserWindow, shell } from 'electron'
 import { join } from 'node:path'
 import icon from '../../resources/icon.png?asset'
-import { isAllowedNavigation, isHttpsUrl } from './navigation'
+import { isAllowedFrameNavigation, isAllowedNavigation, isHttpsUrl } from './navigation'
 
 function openExternalIfSafe(url: string): void {
-  if (isHttpsUrl(url)) void shell.openExternal(url)
+  if (isHttpsUrl(url)) void shell.openExternal(url).catch(() => undefined)
 }
 
 export function createMainWindow(): BrowserWindow {
@@ -40,6 +40,15 @@ export function createMainWindow(): BrowserWindow {
     if (isAllowedNavigation(url, devServerUrl)) return
     event.preventDefault()
     openExternalIfSafe(url)
+  })
+
+  // 'will-navigate' só cobre o frame principal. O iframe sandbox do e-mail
+  // (sandbox="" srcDoc) ainda pode navegar a si mesmo ao clicar em um link;
+  // sem este listener, apenas o CSP bloqueia, mostrando uma página de erro.
+  mainWindow.webContents.on('will-frame-navigate', (details) => {
+    if (isAllowedFrameNavigation(details.url, details.isMainFrame)) return
+    details.preventDefault()
+    openExternalIfSafe(details.url)
   })
 
   if (devServerUrl) {

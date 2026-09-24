@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isAllowedNavigation, isHttpsUrl } from './navigation'
+import { isAllowedFrameNavigation, isAllowedNavigation, isHttpsUrl } from './navigation'
 
 describe('isHttpsUrl', () => {
   it.each([
@@ -30,4 +30,21 @@ describe('isAllowedNavigation', () => {
   ])('bloqueia %s', (url, devUrl) => {
     expect(isAllowedNavigation(url, devUrl)).toBe(false)
   })
+})
+
+describe('isAllowedFrameNavigation', () => {
+  it('permite o frame principal (tratado pelo will-navigate)', () => {
+    expect(isAllowedFrameNavigation('https://qualquer.com', true)).toBe(true)
+  })
+
+  it.each(['about:srcdoc', 'about:blank'])('permite %s em subframe', (url) => {
+    expect(isAllowedFrameNavigation(url, false)).toBe(true)
+  })
+
+  it.each(['https://help.uber.com/x', 'file:///etc/passwd', 'javascript:alert(1)'])(
+    'bloqueia %s em subframe',
+    (url) => {
+      expect(isAllowedFrameNavigation(url, false)).toBe(false)
+    }
+  )
 })

@@ -11,13 +11,16 @@ export function App() {
   const [session, setSession] = useState<Session>({ state: 'loading' })
 
   useEffect(() => {
-    window.api.auth.status().then((result) => {
-      if (result.ok && result.data.configured) {
-        setSession({ state: 'authenticated', email: result.data.email ?? '' })
-      } else {
-        setSession({ state: 'anonymous' })
-      }
-    })
+    window.api.auth
+      .status()
+      .then((result) => {
+        if (result.ok && result.data.configured) {
+          setSession({ state: 'authenticated', email: result.data.email ?? '' })
+        } else {
+          setSession({ state: 'anonymous' })
+        }
+      })
+      .catch(() => setSession({ state: 'anonymous' }))
   }, [])
 
   if (session.state === 'loading') return null

@@ -1,5 +1,5 @@
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { BrowserWindow, app } from 'electron'
+import { BrowserWindow, app, session } from 'electron'
 import { join } from 'node:path'
 import { createAppPasswordProvider } from './auth/AppPasswordProvider'
 import { createCredentialStore } from './auth/credentialStore'
@@ -16,6 +16,10 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  // O app não precisa de câmera, microfone, geolocalização etc.; negar tudo
+  // reduz a superfície de ataque caso algum conteúdo tente solicitar permissão.
+  session.defaultSession.setPermissionRequestHandler((_wc, _perm, callback) => callback(false))
 
   const store = createCredentialStore(
     join(app.getPath('userData'), 'credentials.bin'),

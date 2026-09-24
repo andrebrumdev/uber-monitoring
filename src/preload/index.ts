@@ -1,22 +1,15 @@
-import { electronAPI } from '@electron-toolkit/preload'
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+import { type Api, IPC } from '../shared/api'
 
-// Custom APIs for renderer
-const api = {}
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
+const api: Api = {
+  auth: {
+    status: () => ipcRenderer.invoke(IPC.authStatus),
+    login: (email, password) => ipcRenderer.invoke(IPC.authLogin, email, password),
+    logout: () => ipcRenderer.invoke(IPC.authLogout)
+  },
+  emails: {
+    fetch: (month, year) => ipcRenderer.invoke(IPC.emailsFetch, month, year)
   }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
 }
+
+contextBridge.exposeInMainWorld('api', api)

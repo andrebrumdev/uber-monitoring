@@ -279,15 +279,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-toolkit/preload@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@electron-toolkit/preload@npm:3.0.1"
-  peerDependencies:
-    electron: ">=13.0.0"
-  checksum: 10c0/7ebc3738dbdbc7295f37fa5cfc4dbc0b60576405c04a017aa121f6b3377674fc38871c030f0506cf9c7dc61c96f944576731dd8ae1aac471b8b63f4651b9451f
-  languageName: node
-  linkType: hard
-
 "@electron-toolkit/tsconfig@npm:^1.0.1":
   version: 1.0.1
   resolution: "@electron-toolkit/tsconfig@npm:1.0.1"
@@ -9099,7 +9090,6 @@ __metadata:
   dependencies:
     "@electron-toolkit/eslint-config-prettier": "npm:^3.0.0"
     "@electron-toolkit/eslint-config-ts": "npm:^3.0.0"
-    "@electron-toolkit/preload": "npm:^3.0.1"
     "@electron-toolkit/tsconfig": "npm:^1.0.1"
     "@electron-toolkit/utils": "npm:^4.0.0"
     "@radix-ui/react-collapsible": "npm:^1.1.3"

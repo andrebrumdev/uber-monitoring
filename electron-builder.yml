@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: br.com.andrebrum.uber-monitoring
 productName: uber-email-ts
 directories:
   buildResources: build

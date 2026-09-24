@@ -59,17 +59,12 @@ const App: React.FC = () => {
   const fetchEmails = async (data: FormData): Promise<void> => {
     setLoading(true)
     try {
-      const response = await window.electron.ipcRenderer.invoke(
-        'fetchEmails',
-        Number(data.month),
-        Number(data.year)
-      )
-      if (response.error) throw new Error(response.error)
-      setEmails(response)
-    } catch (error) {
-      console.error('Erro ao buscar emails:', error)
+      const result = await window.api.emails.fetch(Number(data.month), Number(data.year))
+      if (result.ok) setEmails(result.data)
+      else console.error('Erro ao buscar emails:', result.error.message)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

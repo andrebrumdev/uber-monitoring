@@ -1,30 +1,18 @@
 import * as cheerio from 'cheerio'
-import { ImapFlow } from 'imapflow'
 import { ParsedMail, simpleParser } from 'mailparser'
 import { Readable, Transform, TransformCallback } from 'stream'
+import type { ImapAuth } from './auth/AuthProvider'
+import { createImapClient, toImapAppError } from './imap/client'
 
-async function connectToGmail() {
+async function connectToGmail(auth: ImapAuth) {
+  const client = createImapClient(auth)
   try {
-    const client = new ImapFlow({
-      host: 'imap.gmail.com',
-      port: 993,
-      secure: true,
-      auth: {
-        user: import.meta.env.MAIN_VITE_EMAIL,
-        pass: import.meta.env.MAIN_VITE_PASSWORD
-      },
-      tls: {
-        rejectUnauthorized: false
-      },
-      logger: false
-    })
     await client.connect()
-    await client.mailboxOpen('INBOX')
-    return client
   } catch (error) {
-    console.error('Erro ao conectar ao Gmail:', error)
-    throw error
+    throw toImapAppError(error)
   }
+  await client.mailboxOpen('INBOX')
+  return client
 }
 
 function cleanHtml(html: string): [string, string] {
@@ -132,8 +120,8 @@ class EmailTransform extends Transform {
   }
 }
 
-export const fetchEmails = async (month: number, year: number): Promise<any[]> => {
-  const client = await connectToGmail()
+export const fetchEmails = async (auth: ImapAuth, month: number, year: number): Promise<Email[]> => {
+  const client = await connectToGmail(auth)
   try {
     const startDate = new Date(year, month - 1, 1).toISOString()
     const endDate = new Date(year, month, 1).toISOString()

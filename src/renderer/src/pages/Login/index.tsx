@@ -57,7 +57,8 @@ export function Login({ onLoggedIn }: { onLoggedIn: (email: string) => void }) {
       <Ribbon
         orientation="horizontal"
         slow={busy}
-        className="h-[120px] w-full shrink-0 min-[900px]:hidden"
+        // A faixa esmaece na borda de baixo em vez de cortar a fita reta.
+        className="h-[120px] w-full shrink-0 [mask-image:linear-gradient(to_bottom,#000_55%,transparent)] min-[900px]:hidden"
       />
       <Ribbon
         orientation="vertical"
@@ -68,14 +69,21 @@ export function Login({ onLoggedIn }: { onLoggedIn: (email: string) => void }) {
       <div
         className={cn(
           'relative z-10 flex flex-1 flex-col justify-center px-[clamp(24px,6vw,48px)] py-10',
-          'min-[900px]:w-[max(48%,460px)] min-[900px]:flex-none min-[900px]:py-8 min-[900px]:pr-10 min-[900px]:pl-[clamp(40px,7.5vw,96px)]',
+          // A coluna é mais larga que o texto: a fita corre por baixo da sobra à direita (z-10).
+          // Recuo 64px → 96px entre 900 e 1440 de largura; 24px à direita dão medida ao título.
+          'min-[900px]:w-[max(52%,500px)] min-[900px]:flex-none min-[900px]:py-8 min-[900px]:pr-6 min-[900px]:pl-[clamp(64px,calc(10.67px_+_5.926vw),96px)]',
           leaving && 'animate-fade-out'
         )}
       >
-        <div className="@container flex w-full max-w-[560px] flex-col">
+        <div className="flex w-full max-w-[560px] flex-col">
           <Brand />
 
-          <h1 className="mt-10 text-[clamp(32px,10.5cqi,56px)] leading-[1.05] font-medium tracking-[-0.025em] text-balance">
+          {/*
+            Medido na viewport, não no contêiner com recuo. A linha 1 mede ~8,83em em Figtree 500:
+            empilhado, 8.5vw cabe na largura útil (100vw − 12vw); lado a lado, 46px em 900 de
+            largura (406px de 412px úteis) sobe até 56px a partir de 1180.
+          */}
+          <h1 className="mt-10 text-[clamp(30px,8.5vw,56px)] leading-[1.05] font-medium tracking-[-0.025em] text-balance min-[900px]:text-[clamp(46px,calc(13.86px_+_3.571vw),56px)] min-[900px]:whitespace-nowrap">
             <span className="block text-foreground">Seu mês de corridas,</span>
             <span className="block text-primary">num só lugar.</span>
           </h1>

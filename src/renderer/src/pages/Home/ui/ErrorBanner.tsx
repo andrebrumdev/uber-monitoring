@@ -8,8 +8,12 @@ const TITLES: Partial<Record<ErrorCode, string>> = {
 }
 const FALLBACK_TITLE = 'Algo deu errado'
 
-const NEXT_STEP: Partial<Record<ErrorCode, string>> = {
-  AUTH_FAILED: 'Saia e entre de novo com uma senha nova.'
+/**
+ * Texto próprio do renderer para códigos em que a mensagem do main contradiz o título.
+ * AUTH_FAILED na Home significa senha salva revogada, não digitação errada (design §3.3).
+ */
+const BODIES: Partial<Record<ErrorCode, string>> = {
+  AUTH_FAILED: 'O Gmail recusou a senha salva. Saia e entre de novo com uma senha de app nova.'
 }
 
 interface ErrorBannerProps {
@@ -19,8 +23,6 @@ interface ErrorBannerProps {
 }
 
 export function ErrorBanner({ code, message, onClose }: ErrorBannerProps) {
-  const nextStep = NEXT_STEP[code]
-
   return (
     <div
       role="alert"
@@ -31,10 +33,7 @@ export function ErrorBanner({ code, message, onClose }: ErrorBannerProps) {
         <p className="text-[15px] leading-5 font-medium text-foreground">
           {TITLES[code] ?? FALLBACK_TITLE}
         </p>
-        <p className="text-sm text-muted-foreground">
-          {message}
-          {nextStep && ` ${nextStep}`}
-        </p>
+        <p className="text-sm text-muted-foreground">{BODIES[code] ?? message}</p>
       </div>
       <button
         type="button"

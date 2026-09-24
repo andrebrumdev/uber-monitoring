@@ -25,15 +25,15 @@ const RideSelectionCard: React.FC<{ from?: Destination; to?: Destination }> = ({
           transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} // Animação contínua
         />
       </motion.svg>
-      <div className="flex flex-col *:py-2 divide-accent/50 divide-y pl-4">
+      <div className="flex flex-col *:py-2 divide-border divide-y pl-4">
         {/* PICK UP */}
         {from && (
           <div className="flex items-start gap-3 relative">
             <span className="w-3 h-3 bg-primary border-2 border-green-500 rounded-full mt-1.5 absolute -translate-x-1/2 -left-4" />
             <div className="flex flex-col w-full">
               <div className="flex justify-between">
-                <span className="text-xs text-secondary/80 uppercase tracking-wide">de</span>
-                <span className="text-xs text-secondary/80 uppercase tracking-wide">
+                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">de</span>
+                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">
                   {from.time}
                 </span>
               </div>
@@ -47,8 +47,8 @@ const RideSelectionCard: React.FC<{ from?: Destination; to?: Destination }> = ({
             <span className="w-3 h-3 bg-primary border-2 border-red-500 rounded-full mt-1.5 absolute -translate-x-1/2 -left-4" />
             <div className="flex flex-col w-full">
               <div className="flex justify-between">
-                <span className="text-xs text-secondary/80 uppercase tracking-wide">Para</span>
-                <span className="text-xs text-secondary/80 uppercase tracking-wide">{to.time}</span>
+                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">Para</span>
+                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">{to.time}</span>
               </div>
               <span className="text-lg font-semibold ">{to?.rua}</span>
             </div>
@@ -62,7 +62,7 @@ const RideSelectionCard: React.FC<{ from?: Destination; to?: Destination }> = ({
 export const TableViagem = ({ details }: { details: Email['content'] }) => {
   if (details.type !== 'viagem') throw new Error('Not a viagem')
   return (
-    <div className="bg-primary bg-opacity-80 rounded-xl shadow-lg text-primary-foreground p-4 flex flex-col gap-2">
+    <div className="bg-card rounded-panel border border-border text-card-foreground p-4 flex flex-col gap-2">
       <RideSelectionCard from={details.pickup} to={details.dropoff} />
       <div className="flex justify-between text-lg items-baseline ">
         <div className="flex flex-col gap-0.5">
@@ -70,7 +70,7 @@ export const TableViagem = ({ details }: { details: Email['content'] }) => {
             <span>
               <b>Motorista:</b> {details.driver}
             </span>
-            <motion.div className="flex  items-center gap-0.5 text-xs text-gray-400">
+            <motion.div className="flex  items-center gap-0.5 text-xs text-card-foreground/70">
               <motion.div
                 initial={{ opacity: 0, scale: 0 }} // Começa invisível e deslocado para cima
                 animate={{ opacity: 1, scale: 1 }} // Aparece suavemente e desliza para baixo
@@ -81,14 +81,14 @@ export const TableViagem = ({ details }: { details: Email['content'] }) => {
               {details.rating}
             </motion.div>
           </div>
-          <span className="text-sm text-gray-400">Distância: {details.distance} km</span>
-          <span className="text-sm text-gray-400">Duração: {details.duration}</span>
+          <span className="text-sm text-card-foreground/70">Distância: {details.distance} km</span>
+          <span className="text-sm text-card-foreground/70">Duração: {details.duration}</span>
           <EmailPreview
             html={details.content}
             trigger={
               <button
                 type="button"
-                className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 outline-none transition-colors duration-300 ease-out-quart hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                className="inline-flex w-fit items-center gap-1.5 text-sm text-card-foreground/70 underline-offset-4 outline-none transition-colors duration-300 ease-out-quart hover:text-card-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/40"
               >
                 <Mail aria-hidden className="size-3.5" />
                 Ver e-mail original
@@ -99,7 +99,7 @@ export const TableViagem = ({ details }: { details: Email['content'] }) => {
 
         <div className="flex flex-col gap-0.5 items-end">
           <MiniCard type={details.paymentMethod} />
-          <div className="flex flex-col gap-0.5 items-end divide-accent/50 divide-y divide-dashed">
+          <div className="flex flex-col gap-0.5 items-end divide-border divide-y divide-dashed">
             <div className="flex flex-col items-end text-sm pl-4 pb-1">
               <span>
                 <b>Subtotal:</b> {formatToBRL(details.subtotal ?? 0)}

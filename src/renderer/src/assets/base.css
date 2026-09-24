@@ -75,6 +75,9 @@
   --ribbon-2: #c9b8f0;
   --ribbon-3: #5b4fd6;
   --ribbon-opacity: 1;
+  /* Segunda dobra atrás da fita (components/ribbon.tsx). */
+  --ribbon-fold: var(--ribbon-2);
+  --ribbon-fold-opacity: 0.55;
 
   /* Papéis do shadcn */
   --background: var(--ground);
@@ -132,6 +135,9 @@
   --error: #f07a8c;
   --error-surface: color-mix(in srgb, #f07a8c 12%, transparent);
   --ribbon-opacity: 0.85;
+  /* Lilás a 55% sobre o fundo escuro vira um cinza chapado (#342f4d): a dobra ganha o violeta. */
+  --ribbon-fold: var(--ribbon-3);
+  --ribbon-fold-opacity: 0.5;
 
   --muted: #1d1a45;
   /* Tinta escura sobre o violeta claro do tema escuro: branco não passa de 3:1. */

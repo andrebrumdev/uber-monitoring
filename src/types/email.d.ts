@@ -8,11 +8,26 @@ interface RecargaType extends EmailBase {
   type: `${TypeOfViagem.recarga}`
 }
 
+/** Uma linha de "Pagamentos" do recibo; o estorno vem com valor negativo. */
+interface CanceledPayment {
+  method: string
+  /** "d/m/aaaa hh:mm", como o recibo escreve. */
+  date?: string
+  amount: number
+  refund: boolean
+}
+
 interface CanceledType extends EmailBase {
   type: `${TypeOfViagem.cancelada}`
   paymentMethod?: string
   subtotal?: number
-  fixedCost?: number
+  /** Composição da taxa; cada uma só existe quando o recibo traz a linha. */
+  time?: number
+  distance?: number
+  convenienceFee?: number
+  payments?: CanceledPayment[]
+  /** Categoria da viagem, como "UberX". */
+  product?: string
 }
 
 type Destination = {

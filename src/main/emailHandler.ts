@@ -3,6 +3,8 @@ import { ParsedMail, simpleParser } from 'mailparser'
 import { Readable, Transform, TransformCallback } from 'stream'
 import type { ImapAuth } from './auth/AuthProvider'
 import { createImapClient, toImapAppError } from './imap/client'
+import { amountAfter } from './parsers/brl'
+import { parseCancelled } from './parsers/cancelled'
 
 async function connectToGmail(auth: ImapAuth) {
   const client = createImapClient(auth)
@@ -21,7 +23,7 @@ function cleanHtml(html: string): [string, string] {
   return [decodedText, $.html({ scriptingEnabled: false })]
 }
 
-function extractEmailData(textContent = '', htmlContent = ''): EmailData {
+export function extractEmailData(textContent = '', htmlContent = ''): EmailData {
   // console.log(textContent)
 
   function extractWithRegex(pattern: RegExp): string {
@@ -38,6 +40,10 @@ function extractEmailData(textContent = '', htmlContent = ''): EmailData {
     const match = extractWithRegex(pattern)
     return match ? parseFloat(match.replace(',', '.')) : 0
   }
+  /** Valor em reais (formato exato) depois do rótulo; por padrão aceita qualquer coisa no meio. */
+  function extractAmount(label: string, gap = '.*?'): number {
+    return Math.abs(amountAfter(textContent, label, { gap, flags: 'i' }) ?? 0)
+  }
 
   const isRecharge = textContent.toLowerCase().includes('uber cash')
   const isCanceled = textContent.toLowerCase().includes('cancelada')
@@ -46,23 +52,11 @@ function extractEmailData(textContent = '', htmlContent = ''): EmailData {
     return {
       content: htmlContent,
       type: 'recarga',
-      total: extractNumberWithRegex(/Você adicionou R\$\s*([\d.,]+)/i)
+      total: extractAmount('Você adicionou', String.raw`\s*`)
     }
   }
 
-  if (isCanceled) {
-    return {
-      content: htmlContent,
-      type: 'cancelada',
-      total: extractNumberWithRegex(/Total.*?R\$\D*([\d.,]+)/i),
-      paymentMethod:
-        extractWithRegex(
-          /(Mastercard|Visa|Elo|Amex|Nubank|diners|discover|jcb|aura|hipercard|maestro)/i
-        ) || 'Desconhecido',
-      subtotal: extractNumberWithRegex(/Subtotal.*?R\$\D*([\d.,]+)/i),
-      fixedCost: extractNumberWithRegex(/Custo fixo[^+]R\$\s*([\d.,]+)/i)
-    }
-  }
+  if (isCanceled) return parseCancelled(textContent, htmlContent)
 
   const trade = extractGlobalWithRegex(
     /(\d{1,2}:\d{2})\s*(.+?)[\s*][-,]\s*(.+?)\s*[,-]\s*(Manaus)\s*[-,]\s*(AM)[-,]\s*(\d{5}(?:-\d{3})?)/gi
@@ -88,9 +82,9 @@ function extractEmailData(textContent = '', htmlContent = ''): EmailData {
       extractWithRegex(
         /(Mastercard|Visa|Elo|Amex|Nubank|diners|discover|jcb|aura|hipercard|maestro|pix)/i
       ) || 'Desconhecido',
-    total: extractNumberWithRegex(/Total.*?R\$\D*([\d.,]+)/i),
-    subtotal: extractNumberWithRegex(/Subtotal.*?R\$\D*([\d.,]+)/i),
-    fixedCost: extractNumberWithRegex(/Custo fixo[^+]R\$\D*([\d.,]+)/i),
+    total: extractAmount('Total'),
+    subtotal: extractAmount('Subtotal'),
+    fixedCost: extractAmount('Custo fixo', '[^+]'),
     distance: extractWithRegex(/(\d+\.\d+)\s+Quil[^+]+/i),
     duration: extractWithRegex(/min\D*([\d:]+)/i) + ' min',
     pickup: arrayToDestination(trade.next().value),
@@ -120,7 +114,11 @@ class EmailTransform extends Transform {
   }
 }
 
-export const fetchEmails = async (auth: ImapAuth, month: number, year: number): Promise<Email[]> => {
+export const fetchEmails = async (
+  auth: ImapAuth,
+  month: number,
+  year: number
+): Promise<Email[]> => {
   const client = await connectToGmail(auth)
   try {
     const startDate = new Date(year, month - 1, 1).toISOString()

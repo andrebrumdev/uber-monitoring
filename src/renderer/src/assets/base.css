@@ -4,75 +4,139 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Identidade "Prospecto Cívico" — docs/superpowers/specs/2026-09-24-ui-seguranca-design.md §2.
+ * Branco-osso vazio; toda a cor vai para a fita e para o violeta de ação.
+ * Os papéis do shadcn apontam para esses tokens, então o resto do app herda a paleta.
+ */
+
+/* Figtree (SIL OFL 1.1, ver fonts/OFL.txt), só 400 e 500, empacotada para funcionar offline. */
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/figtree-latin-400-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/figtree-latin-ext-400-normal.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/figtree-latin-500-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/figtree-latin-ext-500-normal.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  color-scheme: light;
+
+  /* Mundo */
+  --ground: #f7f7fa;
+  --ground-end: #ffffff;
+  --surface: #ffffff;
+  --ink: #1b1547;
+  --body: #4b5165;
+  --violet: #6b5ce7;
+  --violet-hover: #5a4bd6;
+  --violet-active: #3f3499;
+  --violet-tint: #efedfc;
+  --hairline: #e6e7ee;
+  --control-edge: #d3d4e0;
+  --error: #c2364b;
+  --error-surface: color-mix(in srgb, #c2364b 6%, transparent);
+  --ribbon-1: #7fd8d0;
+  --ribbon-2: #c9b8f0;
+  --ribbon-3: #5b4fd6;
+  --ribbon-opacity: 1;
+
+  /* Papéis do shadcn */
+  --background: var(--ground);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--violet);
+  --primary-foreground: #ffffff;
+  --primary-hover: var(--violet-hover);
+  --primary-active: var(--violet-active);
+  --secondary: var(--violet-tint);
+  --secondary-foreground: var(--ink);
+  --muted: #efeff4;
+  --muted-foreground: var(--body);
+  --accent: var(--violet-tint);
+  --accent-foreground: var(--ink);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error);
+  --destructive-surface: var(--error-surface);
+  --border: var(--hairline);
+  --input: var(--control-edge);
+  --ring: var(--violet);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--violet);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--violet-tint);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--hairline);
+  --sidebar-ring: var(--violet);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  color-scheme: dark;
+
+  --ground: #0f0d24;
+  --ground-end: #0f0d24;
+  --surface: #17143a;
+  --ink: #edebfa;
+  --body: #b7b4d1;
+  --violet: #8f84f0;
+  --violet-hover: #a39af4;
+  --violet-active: #b5aef6;
+  --violet-tint: #221e4d;
+  --hairline: #2a2657;
+  --control-edge: #3a3570;
+  --error: #f07a8c;
+  --error-surface: color-mix(in srgb, #f07a8c 12%, transparent);
+  --ribbon-opacity: 0.85;
+
+  --muted: #1d1a45;
+  /* Tinta escura sobre o violeta claro do tema escuro: branco não passa de 3:1. */
+  --primary-foreground: #0f0d24;
+  --sidebar-primary-foreground: #0f0d24;
 }
 
 @theme inline {
@@ -92,6 +156,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-surface: var(--destructive-surface);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -114,12 +181,103 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@theme {
+  --radius-control: 8px;
+  --radius-panel: 12px;
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-rise: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --animate-rise: rise 0.8s var(--ease-rise) both;
+  --animate-banner-in: banner-in 0.3s var(--ease-out-quart) both;
+  --animate-fade-out: fade-out 0.3s var(--ease-out-quart) forwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    font-variant-numeric: tabular-nums;
+    /* Só existem os pesos 400 e 500: nada de negrito sintético. */
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    caret-color: var(--primary);
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 22%, transparent);
+    color: var(--foreground);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--hairline);
+    border: 2px solid var(--background);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--control-edge);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* A fita: deriva lenta e crista que segue o cursor (ver components/ribbon.tsx). */
+@keyframes ribbon-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-10px, 14px, 0) rotate(-0.8deg);
+  }
+}
+.ribbon {
+  opacity: var(--ribbon-opacity);
+}
+.ribbon-drift {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ribbon-drift 16s ease-in-out infinite;
+}
+.ribbon-crest {
+  transition: d 0.3s var(--ease-out-quart);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ribbon-drift {
+    animation: none;
+  }
+  .ribbon-crest {
+    transition: none;
+  }
+  .animate-rise,
+  .animate-banner-in {
+    animation: none;
+  }
+  .animate-fade-out {
+    animation-duration: 1ms;
   }
 }
 
@@ -142,4 +300,3 @@ html {
   background-clip: border-box;
   animation: dash-animation 1s linear infinite;
 }
-

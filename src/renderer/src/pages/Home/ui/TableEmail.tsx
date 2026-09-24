@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { formatToBRL } from 'brazilian-values'
-import { ChevronDown } from 'lucide-react'
+import { Car, ChevronDown, CircleX, Coins, Wallet } from 'lucide-react'
 import React from 'react'
 import { TableDetails } from './TableDetails'
 
@@ -59,18 +59,29 @@ export const TableEmail: React.FC<{ emails?: Email[] }> = ({ emails }) => {
             Total de <b>{emails.length}</b> emails
           </div>
           <ul className="flex flex-row *:px-2 divide-x">
-            <li>
-              <b>🔴 Cancelada:</b> {emails.filter((e) => e.content.type === 'cancelada').length}
+            <li className="flex items-center gap-1">
+              <b className="flex items-center gap-1">
+                <CircleX aria-hidden className="size-3.5" /> Cancelada:
+              </b>
+              {emails.filter((e) => e.content.type === 'cancelada').length}
             </li>
-            <li>
-              <b>🚗 Viagem:</b> {emails.filter((e) => e.content.type === 'viagem').length}
+            <li className="flex items-center gap-1">
+              <b className="flex items-center gap-1">
+                <Car aria-hidden className="size-3.5" /> Viagem:
+              </b>
+              {emails.filter((e) => e.content.type === 'viagem').length}
             </li>
-            <li>
-              <b>🪙 Recarga:</b> {emails.filter((e) => e.content.type === 'recarga').length}
+            <li className="flex items-center gap-1">
+              <b className="flex items-center gap-1">
+                <Coins aria-hidden className="size-3.5" /> Recarga:
+              </b>
+              {emails.filter((e) => e.content.type === 'recarga').length}
             </li>
           </ul>
-          <div className="flex gap-1">
-            <b>💰 Total:</b>
+          <div className="flex items-center gap-1">
+            <b className="flex items-center gap-1">
+              <Wallet aria-hidden className="size-3.5" /> Total:
+            </b>
             {formatToBRL(emails.reduce((acc, e) => (e.content.total ?? 0) + acc, 0))}
           </div>
         </div>

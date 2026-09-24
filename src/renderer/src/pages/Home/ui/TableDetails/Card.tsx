@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { CreditCard } from 'lucide-react'
 
 const cardStyles: Record<string, { bg: string }> = {
   mastercard: { bg: 'bg-gradient-to-r from-red-600 to-orange-500' },
@@ -29,7 +30,7 @@ export const MiniCard: React.FC<{ type?: string }> = ({ type }) => {
         whileHover={{ scale: 1.05 }}
       >
         <div className="flex justify-between items-center p-2 ">
-          <span className="text-xs leading-none">💳</span>
+          <CreditCard aria-hidden className="size-3.5" />
           <span className="text-xs uppercase font-extrabold">{type}</span>
         </div>
 

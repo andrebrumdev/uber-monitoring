@@ -1,7 +1,7 @@
 import { EmailPreview } from '@/components/EmailPreview'
 import { formatToBRL } from 'brazilian-values'
 import { motion } from 'framer-motion'
-import { Mail } from 'lucide-react'
+import { Mail, Star } from 'lucide-react'
 import { MiniCard } from './Card'
 
 const RideSelectionCard: React.FC<{ from?: Destination; to?: Destination }> = ({ from, to }) => {
@@ -76,7 +76,7 @@ export const TableViagem = ({ details }: { details: Email['content'] }) => {
                 animate={{ opacity: 1, scale: 1 }} // Aparece suavemente e desliza para baixo
                 transition={{ duration: 0.5, ease: 'backOut' }} // Suaviza a animação
               >
-                ⭐
+                <Star aria-hidden className="size-3.5 fill-current" />
               </motion.div>
               {details.rating}
             </motion.div>

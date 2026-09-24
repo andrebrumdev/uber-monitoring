@@ -11,7 +11,7 @@ async function connectToGmail(auth: ImapAuth) {
   } catch (error) {
     throw toImapAppError(error)
   }
-  await client.mailboxOpen('INBOX')
+  await client.mailboxOpen('INBOX', { readOnly: true })
   return client
 }
 

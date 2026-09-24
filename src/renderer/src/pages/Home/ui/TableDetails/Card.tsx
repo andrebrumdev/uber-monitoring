@@ -7,8 +7,9 @@ import type React from 'react'
 
 export function DetailLayout({ html, children }: { html: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-5">
-      <div className="grid gap-x-10 gap-y-6 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1fr)]">
+    // Consulta de contêiner: a linha aberta tem a largura da tabela, não da janela.
+    <div className="@container flex flex-col gap-5">
+      <div className="grid gap-x-10 gap-y-6 @lg:grid-cols-2 @2xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1fr)]">
         {children}
       </div>
       <OriginalEmailLink html={html} />

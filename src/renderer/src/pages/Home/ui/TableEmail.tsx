@@ -118,21 +118,32 @@ function ReceiptRow({ email }: { email: Email }) {
   )
 }
 
+/** Moldura que encolhe até a altura disponível; quem rola é o contêiner da tabela. */
 function Frame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-panel border border-border bg-card">{children}</div>
+    <div className="flex min-h-0 flex-col overflow-hidden rounded-panel border border-border bg-card">
+      {children}
+    </div>
   )
 }
 
+/** Rolagem só dentro da moldura; cabeçalho e rodapé ficam presos com um fio de 1px. */
+const SCROLL_REGION =
+  'min-h-0 flex-1 overflow-y-auto overscroll-contain outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/40'
+
+/** Fio sob o cabeçalho preso: borda de tabela colapsada não acompanha o `sticky`. */
+const STICKY_HEAD = 'sticky top-0 z-10 bg-card shadow-[inset_0_-1px_0_var(--border)]'
+const STICKY_FOOT = 'sticky bottom-0 z-10 bg-card shadow-[inset_0_1px_0_var(--border)]'
+
 function Head() {
   return (
-    <TableHeader>
+    <TableHeader className="[&_tr]:border-b-0">
       <TableRow className="hover:bg-transparent">
-        <TableHead>Assunto</TableHead>
-        <TableHead>Data</TableHead>
-        <TableHead>Tipo</TableHead>
-        <TableHead className="text-right">Total</TableHead>
-        <TableHead className="w-14">
+        <TableHead className={STICKY_HEAD}>Assunto</TableHead>
+        <TableHead className={STICKY_HEAD}>Data</TableHead>
+        <TableHead className={STICKY_HEAD}>Tipo</TableHead>
+        <TableHead className={cn(STICKY_HEAD, 'text-right')}>Total</TableHead>
+        <TableHead className={cn(STICKY_HEAD, 'w-14')}>
           <span className="sr-only">Detalhes</span>
         </TableHead>
       </TableRow>
@@ -150,16 +161,23 @@ export const TableEmail: React.FC<{ emails?: Email[] }> = ({ emails }) => {
 
   return (
     <Frame>
-      <Table>
+      <Table
+        container={{
+          className: SCROLL_REGION,
+          tabIndex: 0,
+          role: 'region',
+          'aria-label': 'Recibos do mês'
+        }}
+      >
         <Head />
         <TableBody>
           {emails.map((email, index) => (
             <ReceiptRow key={`${email.date}-${index}`} email={email} />
           ))}
         </TableBody>
-        <TableFooter>
+        <TableFooter className="border-t-0">
           <TableRow className="hover:bg-transparent">
-            <TableCell colSpan={3} className="text-muted-foreground">
+            <TableCell colSpan={3} className={cn(STICKY_FOOT, 'text-muted-foreground')}>
               <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
                 <span className="text-foreground">
                   {plural(emails.length, 'recibo', 'recibos')}
@@ -175,11 +193,11 @@ export const TableEmail: React.FC<{ emails?: Email[] }> = ({ emails }) => {
                 })}
               </div>
             </TableCell>
-            <TableCell className="text-right text-foreground">
+            <TableCell className={cn(STICKY_FOOT, 'text-right text-foreground')}>
               <span className="sr-only">Total do mês: </span>
               {formatToBRL(total)}
             </TableCell>
-            <TableCell />
+            <TableCell className={STICKY_FOOT} />
           </TableRow>
         </TableFooter>
       </Table>
@@ -192,7 +210,11 @@ export function TableEmailSkeleton({ rows = 4 }: { rows?: number }) {
   const widths = ['w-56', 'w-44', 'w-64', 'w-48']
   return (
     <Frame>
-      <Table aria-busy="true" aria-label="Carregando recibos">
+      <Table
+        aria-busy="true"
+        aria-label="Carregando recibos"
+        container={{ className: 'min-h-0 flex-1 overflow-hidden' }}
+      >
         <Head />
         <TableBody>
           {Array.from({ length: rows }, (_, index) => (

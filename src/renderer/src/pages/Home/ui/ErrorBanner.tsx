@@ -26,7 +26,7 @@ export function ErrorBanner({ code, message, onClose }: ErrorBannerProps) {
   return (
     <div
       role="alert"
-      className="animate-banner-in flex items-start gap-3 rounded-panel border border-destructive/30 bg-destructive-surface px-5 py-4"
+      className="animate-banner-in flex shrink-0 items-start gap-3 rounded-panel border border-destructive/30 bg-destructive-surface px-5 py-4"
     >
       <CircleAlert aria-hidden className="size-5 shrink-0 text-destructive" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">

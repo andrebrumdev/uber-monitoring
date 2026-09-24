@@ -71,19 +71,25 @@ const CHART_CONFIG: ChartConfig = Object.fromEntries(
 /** Estado vazio calmo, centrado na área de conteúdo. */
 function EmptyState({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
+    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
       <Icon aria-hidden className="size-6 text-muted-foreground" strokeWidth={1.5} />
       <p className="max-w-[44ch] text-[15px] text-muted-foreground">{children}</p>
     </div>
   )
 }
 
-/** Tabela à esquerda, resumo por tipo à direita (abaixo em janelas estreitas). */
+/**
+ * Tabela à esquerda ocupando a altura que sobra (só ela rola), resumo por tipo à direita.
+ * Abaixo de 768px o resumo vira uma faixa compacta sob a tabela.
+ */
 function ResultsGrid({ table, summary }: { table: React.ReactNode; summary: React.ReactNode }) {
   return (
-    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_240px]">
-      {table}
-      <section aria-label="Gastos por tipo" className="flex flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-6 md:flex-row lg:gap-8">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">{table}</div>
+      <section
+        aria-label="Gastos por tipo"
+        className="flex shrink-0 flex-col gap-4 md:w-[220px] md:overflow-y-auto lg:w-[240px]"
+      >
         <h2 className="text-[13px] font-medium text-muted-foreground">Gastos por tipo</h2>
         {summary}
       </section>
@@ -91,7 +97,9 @@ function ResultsGrid({ table, summary }: { table: React.ReactNode; summary: Reac
   )
 }
 
-const SUMMARY_LAYOUT = 'sm:flex-row sm:items-center sm:gap-10 lg:flex-col lg:items-stretch lg:gap-5'
+/** Faixa compacta (rosca menor, legenda ao lado) em janela estreita; coluna ao lado da tabela a partir de 768px. */
+const SUMMARY_LAYOUT =
+  'flex-row items-center gap-6 [&_[data-slot=chart]]:w-[112px] md:flex-col md:items-stretch md:gap-5 md:[&_[data-slot=chart]]:w-[200px]'
 
 const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
   const { control, handleSubmit, watch, setValue } = useForm<FormData>({
@@ -218,8 +226,9 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-6 border-b border-border bg-background px-6">
+    // Altura fixa da janela: a página não rola, só a tabela (ver TableEmail).
+    <div className="flex h-dvh flex-col overflow-hidden">
+      <header className="flex h-16 shrink-0 items-center justify-between gap-6 border-b border-border bg-background px-6">
         <Brand size="sm" />
         <div className="flex min-w-0 items-center gap-6">
           <span className="max-w-[32ch] truncate text-sm text-muted-foreground" title={email}>
@@ -237,9 +246,9 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
           </Button>
         </div>
       </header>
-      <main className="animate-rise flex flex-1 flex-col px-4 pt-8 pb-10 sm:px-6">
-        <div className="mx-auto flex w-full max-w-[1180px] flex-1 flex-col gap-8">
-          <div className="flex flex-col gap-5">
+      <main className="animate-rise flex min-h-0 flex-1 flex-col px-4 pt-6 pb-6 sm:px-6">
+        <div className="mx-auto flex min-h-0 w-full max-w-[1180px] flex-1 flex-col gap-6">
+          <div className="flex shrink-0 flex-col gap-4">
             <h1 className="text-2xl font-medium tracking-[-0.02em] text-foreground">
               Seus recibos da Uber
             </h1>
@@ -249,6 +258,36 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
                 aria-label="Escolher período"
                 className="flex flex-wrap items-end gap-3"
               >
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="periodo-ano" className="text-sm font-medium text-foreground">
+                    Ano
+                  </label>
+                  <Controller
+                    name="year"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(year) => year && handleYearChange(year, field.onChange)}
+                        value={field.value}
+                        disabled={selectsDisabled}
+                      >
+                        <SelectTrigger
+                          id="periodo-ano"
+                          className={cn('w-28', selectsDisabled && 'w-auto min-w-28')}
+                        >
+                          <SelectValue placeholder={placeholder('Ano')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {yearOptions.map((period) => (
+                            <SelectItem key={period.year} value={period.year.toString()}>
+                              {period.year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="periodo-mes" className="text-sm font-medium text-foreground">
                     Mês
@@ -280,36 +319,6 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
                     )}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="periodo-ano" className="text-sm font-medium text-foreground">
-                    Ano
-                  </label>
-                  <Controller
-                    name="year"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={(year) => year && handleYearChange(year, field.onChange)}
-                        value={field.value}
-                        disabled={selectsDisabled}
-                      >
-                        <SelectTrigger
-                          id="periodo-ano"
-                          className={cn('w-28', selectsDisabled && 'w-auto min-w-28')}
-                        >
-                          <SelectValue placeholder={placeholder('Ano')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {yearOptions.map((period) => (
-                            <SelectItem key={period.year} value={period.year.toString()}>
-                              {period.year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
                 <Button
                   type="submit"
                   disabled={loading || selectsDisabled}
@@ -329,7 +338,11 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
               onClose={() => setError(null)}
             />
           )}
-          <section aria-label="Recibos" aria-busy={showSkeleton} className="flex flex-1 flex-col">
+          <section
+            aria-label="Recibos"
+            aria-busy={showSkeleton}
+            className="flex min-h-0 flex-1 flex-col"
+          >
             {noReceipts ? (
               <EmptyState icon={Inbox}>Não encontramos recibos da Uber neste Gmail.</EmptyState>
             ) : showSkeleton ? (
@@ -337,7 +350,7 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
                 table={<TableEmailSkeleton />}
                 summary={
                   <div className={cn('flex flex-col gap-5', SUMMARY_LAYOUT)}>
-                    <Skeleton className="mx-auto aspect-square w-[200px] shrink-0 rounded-full border-[32px] border-border bg-transparent" />
+                    <Skeleton className="mx-auto aspect-square w-[112px] shrink-0 rounded-full border-[18px] border-border bg-transparent md:w-[200px] md:border-[32px]" />
                     <div className="flex flex-1 flex-col gap-4 py-2">
                       <Skeleton className="h-3.5 w-full" />
                       <Skeleton className="h-3.5 w-4/5" />
@@ -354,7 +367,7 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
             ) : emails.length > 0 ? (
               <div
                 key={searched ? `${searched.month}-${searched.year}` : 'results'}
-                className="animate-rise"
+                className="animate-rise flex min-h-0 flex-1 flex-col"
               >
                 <ResultsGrid
                   table={<TableEmail emails={emails} />}

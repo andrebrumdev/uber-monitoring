@@ -149,3 +149,39 @@ describe('extractEmailData — valores dos outros tipos', () => {
     expect(data.total).toBe(1050)
   })
 })
+
+describe('parseCancelled — rodapé com promoção depois dos pagamentos', () => {
+  const PROMO_SPACED = `${SPACED}
+Para mais informações, acesse a Ajuda.
+Ganhe R$ 20,00 de desconto na próxima viagem`
+  const PROMO_GLUED = `${GLUED}Para mais informações, acesse a Ajuda.Ganhe R$ 20,00 de desconto na próxima viagem`
+  /** Sem o bloco da categoria: o limite tem de vir do próprio rodapé. */
+  const PROMO_NO_PRODUCT =
+    'viagem cancelada. TotalR$ 3,37PagamentosNubank9/3/2024 14:37R$ 10,02' +
+    'Nubank9/3/2024 14:50 -R$ 6,65ReembolsoMudar a forma de pagamentoGanhe R$ 20,00 de desconto'
+  /** Nem marcador: o meio de pagamento curto ainda barra a frase da promoção. */
+  const PROMO_NO_MARKER =
+    'viagem cancelada. TotalR$ 3,37PagamentosNubank9/3/2024 14:37R$ 10,02' +
+    'Nubank9/3/2024 14:50 -R$ 6,65Reembolso. Convide amigos e ganhe R$ 20,00 de desconto'
+
+  it.each([
+    ['com espaços', PROMO_SPACED],
+    ['colado', PROMO_GLUED],
+    ['sem categoria', PROMO_NO_PRODUCT],
+    ['sem marcador', PROMO_NO_MARKER]
+  ])('ignora o R$ da promoção (%s)', (_label, text) => {
+    const { payments } = parseCancelled(text, HTML)
+    expect(payments).toHaveLength(2)
+    expect(payments?.map((payment) => payment.amount)).toEqual([10.02, -6.65])
+  })
+})
+
+describe('extractEmailData — rótulo Total', () => {
+  it('não lê o Subtotal como Total', async () => {
+    const { extractEmailData } = await import('../emailHandler')
+    const data = extractEmailData('Obrigado por viajar SubtotalR$ 12,00', HTML)
+    expect(data.type).toBe('viagem')
+    expect(data.total).toBe(0)
+    expect(data.type === 'viagem' && data.subtotal).toBe(12)
+  })
+})

@@ -42,7 +42,10 @@ export function extractEmailData(textContent = '', htmlContent = ''): EmailData 
   }
   /** Valor em reais (formato exato) depois do rótulo; por padrão aceita qualquer coisa no meio. */
   function extractAmount(label: string, gap = '.*?'): number {
-    return Math.abs(amountAfter(textContent, label, { gap, flags: 'i' }) ?? 0)
+    // "Total" não casa dentro de "Subtotal". Não dá para exigir que não haja letra antes:
+    // o texto do cheerio cola os rótulos na célula anterior ("setembroSubtotalR$ …").
+    const anchored = `(?<!sub)(?:${label})`
+    return Math.abs(amountAfter(textContent, anchored, { gap, flags: 'i' }) ?? 0)
   }
 
   const isRecharge = textContent.toLowerCase().includes('uber cash')

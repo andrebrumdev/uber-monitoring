@@ -1,125 +1,95 @@
-import { EmailPreview } from '@/components/EmailPreview'
 import { formatToBRL } from 'brazilian-values'
-import { motion } from 'framer-motion'
-import { Mail, Star } from 'lucide-react'
-import { MiniCard } from './Card'
+import { Star } from 'lucide-react'
+import { DetailItem, DetailLayout, DetailList, DetailSection, PaymentMethod } from './Card'
 
-const RideSelectionCard: React.FC<{ from?: Destination; to?: Destination }> = ({ from, to }) => {
+const decimal = (value?: string | number): string => String(value ?? '').replace('.', ',')
+
+function Stop({ label, stop, last }: { label: string; stop: Destination; last?: boolean }) {
+  if (!stop) return null
   return (
-    <div
-      className="  
-     flex flex-col gap-4 relative min-w-150 min-h-32
-     "
-    >
-      <motion.svg className="absolute top-6 left-0 w-0.5 -translate-x-1/2 h-12">
-        <motion.line
-          x1="1"
-          y1="0"
-          x2="1"
-          y2="48" // Linha vertical
-          stroke="gray"
-          strokeWidth="2"
-          strokeDasharray="6 6" // Define o traço (6px linha, 6px espaço)
-          initial={{ strokeDashoffset: 0 }}
-          animate={{ strokeDashoffset: -12 }} // Faz o traço se mover para cima
-          transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} // Animação contínua
-        />
-      </motion.svg>
-      <div className="flex flex-col *:py-2 divide-border divide-y pl-4">
-        {/* PICK UP */}
-        {from && (
-          <div className="flex items-start gap-3 relative">
-            <span className="w-3 h-3 bg-primary border-2 border-green-500 rounded-full mt-1.5 absolute -translate-x-1/2 -left-4" />
-            <div className="flex flex-col w-full">
-              <div className="flex justify-between">
-                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">de</span>
-                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">
-                  {from.time}
-                </span>
-              </div>
-              <span className="text-lg font-semibold">{from?.rua}</span>
-            </div>
-          </div>
-        )}
-        {/* DROP OFF */}
-        {to && (
-          <div className="flex items-start gap-3 relative">
-            <span className="w-3 h-3 bg-primary border-2 border-red-500 rounded-full mt-1.5 absolute -translate-x-1/2 -left-4" />
-            <div className="flex flex-col w-full">
-              <div className="flex justify-between">
-                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">Para</span>
-                <span className="text-xs text-card-foreground/70 uppercase tracking-wide">{to.time}</span>
-              </div>
-              <span className="text-lg font-semibold ">{to?.rua}</span>
-            </div>
-          </div>
-        )}
+    <li className="relative flex gap-3 pb-4 last:pb-0">
+      {!last && (
+        <span aria-hidden className="absolute top-3.5 bottom-0 left-[4.5px] w-px bg-border" />
+      )}
+      <span
+        aria-hidden
+        className={
+          last
+            ? 'mt-1.5 size-2.5 shrink-0 rounded-full bg-foreground'
+            : 'mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-muted-foreground'
+        }
+      />
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div className="flex items-baseline justify-between gap-4 text-[13px] text-muted-foreground">
+          <span>{label}</span>
+          {stop.time && <span>{stop.time}</span>}
+        </div>
+        <span className="text-[15px] font-medium text-foreground">
+          {stop.rua || 'Endereço não informado'}
+        </span>
+        {stop.bairro && <span className="text-[13px] text-muted-foreground">{stop.bairro}</span>}
       </div>
-    </div>
+    </li>
   )
 }
 
 export const TableViagem = ({ details }: { details: Email['content'] }) => {
   if (details.type !== 'viagem') throw new Error('Not a viagem')
-  return (
-    <div className="bg-card rounded-panel border border-border text-card-foreground p-4 flex flex-col gap-2">
-      <RideSelectionCard from={details.pickup} to={details.dropoff} />
-      <div className="flex justify-between text-lg items-baseline ">
-        <div className="flex flex-col gap-0.5">
-          <div className="flex gap-2 items-center">
-            <span>
-              <b>Motorista:</b> {details.driver}
-            </span>
-            <motion.div className="flex  items-center gap-0.5 text-xs text-card-foreground/70">
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }} // Começa invisível e deslocado para cima
-                animate={{ opacity: 1, scale: 1 }} // Aparece suavemente e desliza para baixo
-                transition={{ duration: 0.5, ease: 'backOut' }} // Suaviza a animação
-              >
-                <Star aria-hidden className="size-3.5 fill-current" />
-              </motion.div>
-              {details.rating}
-            </motion.div>
-          </div>
-          <span className="text-sm text-card-foreground/70">Distância: {details.distance} km</span>
-          <span className="text-sm text-card-foreground/70">Duração: {details.duration}</span>
-          <EmailPreview
-            html={details.content}
-            trigger={
-              <button
-                type="button"
-                className="inline-flex w-fit items-center gap-1.5 text-sm text-card-foreground/70 underline-offset-4 outline-none transition-colors duration-300 ease-out-quart hover:text-card-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/40"
-              >
-                <Mail aria-hidden className="size-3.5" />
-                Ver e-mail original
-              </button>
-            }
-          />
-        </div>
+  const duration = details.duration?.trim()
+  const hasRoute = Boolean(details.pickup || details.dropoff)
 
-        <div className="flex flex-col gap-0.5 items-end">
-          <MiniCard type={details.paymentMethod} />
-          <div className="flex flex-col gap-0.5 items-end divide-border divide-y divide-dashed">
-            <div className="flex flex-col items-end text-sm pl-4 pb-1">
-              <span>
-                <b>Subtotal:</b> {formatToBRL(details.subtotal ?? 0)}
-              </span>
-              <span>
-                <b>Custo fixo:</b> {formatToBRL(details.fixedCost ?? 0)}
-              </span>
-              <span>
-                <b>Gorgeta:</b> {formatToBRL(details.tip ?? 0)}
-              </span>
-              <span>
-                <b>Uber One:</b> {formatToBRL(-(details.credit ?? 0))}
-              </span>
-            </div>
-            <span>
-              <b>Valor:</b> {formatToBRL(details.total ?? 0)}
+  return (
+    <DetailLayout html={details.content}>
+      <DetailSection title="Trajeto">
+        {hasRoute ? (
+          <ol className="flex flex-col">
+            {details.pickup && <Stop label="De" stop={details.pickup} last={!details.dropoff} />}
+            {details.dropoff && <Stop label="Para" stop={details.dropoff} last />}
+          </ol>
+        ) : (
+          <p className="text-sm text-muted-foreground">O recibo não trouxe o trajeto.</p>
+        )}
+      </DetailSection>
+
+      <DetailSection title="Corrida">
+        <DetailList>
+          <DetailItem label="Motorista">
+            <span className="inline-flex items-center gap-2">
+              {details.driver || 'Não informado'}
+              {Boolean(details.rating) && (
+                <span className="inline-flex items-center gap-0.5 text-muted-foreground">
+                  <Star aria-hidden className="size-3 fill-current" />
+                  <span className="sr-only">Avaliação </span>
+                  {decimal(details.rating)}
+                </span>
+              )}
             </span>
-          </div>
-        </div>
-      </div>
-    </div>
+          </DetailItem>
+          {details.distance && (
+            <DetailItem label="Distância">{decimal(details.distance)} km</DetailItem>
+          )}
+          {duration && duration !== 'min' && <DetailItem label="Duração">{duration}</DetailItem>}
+          <DetailItem label="Pagamento">
+            <PaymentMethod type={details.paymentMethod} />
+          </DetailItem>
+        </DetailList>
+      </DetailSection>
+
+      <DetailSection title="Valores">
+        <DetailList>
+          <DetailItem label="Subtotal">{formatToBRL(details.subtotal ?? 0)}</DetailItem>
+          <DetailItem label="Custo fixo">{formatToBRL(details.fixedCost ?? 0)}</DetailItem>
+          {Boolean(details.tip) && (
+            <DetailItem label="Gorjeta">{formatToBRL(details.tip ?? 0)}</DetailItem>
+          )}
+          {Boolean(details.credit) && (
+            <DetailItem label="Crédito Uber One">− {formatToBRL(details.credit ?? 0)}</DetailItem>
+          )}
+          <DetailItem label="Total" emphasis>
+            {formatToBRL(details.total ?? 0)}
+          </DetailItem>
+        </DetailList>
+      </DetailSection>
+    </DetailLayout>
   )
 }

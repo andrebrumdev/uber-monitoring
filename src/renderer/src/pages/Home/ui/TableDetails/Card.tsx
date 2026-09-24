@@ -1,42 +1,96 @@
-import { motion } from 'framer-motion'
-import { CreditCard } from 'lucide-react'
+import { EmailPreview } from '@/components/EmailPreview'
+import { cn } from '@/lib/utils'
+import { CreditCard, Mail } from 'lucide-react'
+import type React from 'react'
 
-const cardStyles: Record<string, { bg: string }> = {
-  mastercard: { bg: 'bg-gradient-to-r from-red-600 to-orange-500' },
-  visa: { bg: 'bg-blue-600' },
-  elo: { bg: 'bg-black' },
-  amex: { bg: 'bg-blue-500' },
-  nubank: { bg: 'bg-purple-600' },
-  diners: { bg: 'bg-gray-500' },
-  discover: { bg: 'bg-orange-400' },
-  jcb: { bg: 'bg-green-500' },
-  aura: { bg: 'bg-yellow-500' },
-  hipercard: { bg: 'bg-red-700' },
-  maestro: { bg: 'bg-blue-800' },
-  pix: { bg: 'bg-teal-500' }
+/** Peças comuns aos detalhes de viagem, recarga e cancelada: mesma grade, mesmos pares rótulo/valor. */
+
+export function DetailLayout({ html, children }: { html: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="grid gap-x-10 gap-y-6 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        {children}
+      </div>
+      <OriginalEmailLink html={html} />
+    </div>
+  )
 }
 
-export const MiniCard: React.FC<{ type?: string }> = ({ type }) => {
-  if (!type) return null
-  const card = cardStyles[type.toLowerCase()] || cardStyles['pix']
-
+export function DetailSection({
+  title,
+  className,
+  children
+}: {
+  title: string
+  className?: string
+  children: React.ReactNode
+}) {
   return (
-    <div className="relative flex pl-2 pt-1.5 min-h-4 items-center justify-start w-fit">
-      <motion.div
-        className={`w-32 h-20 rounded-lg flex flex-col justify-between text-white ${card.bg} shadow-lg select-none absolute right-full top-2  scale-20 origin-top-right `}
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        whileHover={{ scale: 1.05 }}
-      >
-        <div className="flex justify-between items-center p-2 ">
-          <CreditCard aria-hidden className="size-3.5" />
-          <span className="text-xs uppercase font-extrabold">{type}</span>
-        </div>
+    <section className={cn('flex min-w-0 flex-col gap-3', className)}>
+      <h3 className="text-[13px] font-medium text-muted-foreground">{title}</h3>
+      {children}
+    </section>
+  )
+}
 
-        <div className="bg-black h-2 w-full mb-2" />
-      </motion.div>
-      <motion.b className="text-sm ">{type}</motion.b>
+export function DetailList({ children }: { children: React.ReactNode }) {
+  return <dl className="flex flex-col text-sm">{children}</dl>
+}
+
+export function DetailItem({
+  label,
+  children,
+  emphasis = false
+}: {
+  label: string
+  children: React.ReactNode
+  emphasis?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        'flex items-center justify-between gap-4 py-1',
+        emphasis && 'mt-1 border-t border-border pt-2'
+      )}
+    >
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className={cn('text-right text-foreground', emphasis && 'font-medium')}>{children}</dd>
     </div>
+  )
+}
+
+const PAYMENT_NAMES: Record<string, string> = {
+  amex: 'Amex',
+  jcb: 'JCB',
+  pix: 'Pix',
+  desconhecido: 'Não informado'
+}
+
+export function PaymentMethod({ type }: { type?: string }) {
+  if (!type) return <>Não informado</>
+  const key = type.toLowerCase()
+  const name = PAYMENT_NAMES[key] ?? key.charAt(0).toUpperCase() + key.slice(1)
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <CreditCard aria-hidden className="size-3.5 text-muted-foreground" />
+      {name}
+    </span>
+  )
+}
+
+function OriginalEmailLink({ html }: { html: string }) {
+  return (
+    <EmailPreview
+      html={html}
+      trigger={
+        <button
+          type="button"
+          className="-mx-1 inline-flex w-fit items-center gap-1.5 rounded-control px-1 text-sm text-muted-foreground underline-offset-4 outline-none transition-colors duration-300 ease-out-quart hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/40"
+        >
+          <Mail aria-hidden className="size-3.5" />
+          Ver e-mail original
+        </button>
+      }
+    />
   )
 }

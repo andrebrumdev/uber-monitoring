@@ -106,7 +106,8 @@ function ChartTooltipContent({
   formatter,
   color,
   nameKey,
-  labelKey
+  labelKey,
+  valueFormatter
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<'div'> & {
     hideLabel?: boolean
@@ -114,6 +115,8 @@ function ChartTooltipContent({
     indicator?: 'line' | 'dot' | 'dashed'
     nameKey?: string
     labelKey?: string
+    /** Formata o valor de cada item (ex.: BRL); sem ele, `toLocaleString('pt-BR')`. */
+    valueFormatter?: (value: number) => string
   }) {
   const { config } = useChart()
 
@@ -152,7 +155,7 @@ function ChartTooltipContent({
   return (
     <div
       className={cn(
-        'border-border/50 bg-background grid min-w-[8rem] items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl',
+        'border-border bg-popover text-popover-foreground grid min-w-[10rem] items-start gap-1.5 rounded-control border px-3 py-2 text-[13px]',
         className
       )}
     >
@@ -167,7 +170,7 @@ function ChartTooltipContent({
             <div
               key={item.dataKey}
               className={cn(
-                '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5',
+                '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-3.5 [&>svg]:w-3.5',
                 indicator === 'dot' && 'items-center'
               )}
             >
@@ -201,7 +204,7 @@ function ChartTooltipContent({
                   )}
                   <div
                     className={cn(
-                      'flex flex-1 justify-between leading-none',
+                      'flex flex-1 justify-between gap-4 leading-none',
                       nestLabel ? 'items-end' : 'items-center'
                     )}
                   >
@@ -212,8 +215,10 @@ function ChartTooltipContent({
                       </span>
                     </div>
                     {item.value && (
-                      <span className="text-foreground font-mono font-medium tabular-nums">
-                        {item.value.toLocaleString()}
+                      <span className="text-foreground font-medium tabular-nums">
+                        {valueFormatter && typeof item.value === 'number'
+                          ? valueFormatter(item.value)
+                          : item.value.toLocaleString('pt-BR')}
                       </span>
                     )}
                   </div>

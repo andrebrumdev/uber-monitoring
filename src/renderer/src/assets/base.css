@@ -102,11 +102,12 @@
   --border: var(--hairline);
   --input: var(--control-edge);
   --ring: var(--violet);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
+  /* Gráficos: escala tirada da fita (violeta, lilás, teal), sem vermelho/verde semântico. */
+  --chart-1: var(--violet);
+  --chart-2: var(--ribbon-2);
+  --chart-3: var(--ribbon-1);
+  --chart-4: var(--ribbon-3);
+  --chart-5: var(--control-edge);
   --radius: 0.625rem;
   --sidebar: var(--surface);
   --sidebar-foreground: var(--ink);
@@ -198,6 +199,8 @@
   --animate-fade-out: fade-out 0.3s var(--ease-out-quart) forwards;
   /* Painel do modal "E-mail original" (design §3.4): sobe 24px em 0.3s, não os 0.8s do painel do Login. */
   --animate-dialog-in: rise 0.3s var(--ease-out-quart) both;
+  /* Conteúdo revelado no lugar (detalhe da linha da tabela): 8px em 0.3s. */
+  --animate-reveal: banner-in 0.3s var(--ease-out-quart) both;
 }
 
 @layer base {
@@ -282,7 +285,9 @@
   }
   .animate-rise,
   .animate-banner-in,
-  .animate-dialog-in {
+  .animate-dialog-in,
+  .animate-reveal,
+  [data-slot='skeleton'] {
     animation: none;
   }
   .animate-fade-out {
@@ -292,20 +297,4 @@
 
 html {
   min-height: 100dvh;
-}
-
-@keyframes dash-animation {
-  from {
-    background-position: 0% 0;
-  }
-  to {
-    background-position: 100% 0;
-  }
-}
-.animate-dash {
-  border-right: 2px dashed transparent;
-  background-image: linear-gradient(to bottom, transparent 50%, gray 50%);
-  background-size: 4px 8px;
-  background-clip: border-box;
-  animation: dash-animation 1s linear infinite;
 }

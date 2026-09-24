@@ -190,6 +190,8 @@
   --animate-rise: rise 0.8s var(--ease-rise) both;
   --animate-banner-in: banner-in 0.3s var(--ease-out-quart) both;
   --animate-fade-out: fade-out 0.3s var(--ease-out-quart) forwards;
+  /* Painel do modal "E-mail original" (design §3.4): sobe 24px em 0.3s, não os 0.8s do painel do Login. */
+  --animate-dialog-in: rise 0.3s var(--ease-out-quart) both;
 }
 
 @layer base {
@@ -273,7 +275,8 @@
     transition: none;
   }
   .animate-rise,
-  .animate-banner-in {
+  .animate-banner-in,
+  .animate-dialog-in {
     animation: none;
   }
   .animate-fade-out {

@@ -1,5 +1,7 @@
+import { EmailPreview } from '@/components/EmailPreview'
 import { formatToBRL } from 'brazilian-values'
 import { motion } from 'framer-motion'
+import { Mail } from 'lucide-react'
 import { MiniCard } from './Card'
 
 const RideSelectionCard: React.FC<{ from?: Destination; to?: Destination }> = ({ from, to }) => {
@@ -81,17 +83,18 @@ export const TableViagem = ({ details }: { details: Email['content'] }) => {
           </div>
           <span className="text-sm text-gray-400">Distância: {details.distance} km</span>
           <span className="text-sm text-gray-400">Duração: {details.duration}</span>
-          {/* ver email */}
-          <a
-            onClick={() => {
-              const childWindow = window.open('', 'modal')
-              if (!childWindow) return
-              childWindow.document.writeln(details.content)
-            }}
-            className="text-sm text-gray-400 underline hover:text-gray-300 cursor-pointer"
-          >
-            Ver email
-          </a>
+          <EmailPreview
+            html={details.content}
+            trigger={
+              <button
+                type="button"
+                className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 outline-none transition-colors duration-300 ease-out-quart hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/40"
+              >
+                <Mail aria-hidden className="size-3.5" />
+                Ver e-mail original
+              </button>
+            }
+          />
         </div>
 
         <div className="flex flex-col gap-0.5 items-end">

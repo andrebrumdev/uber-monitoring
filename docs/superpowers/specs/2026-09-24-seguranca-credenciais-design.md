@@ -124,6 +124,8 @@ Expõe apenas `window.api` implementando `Api` via `ipcRenderer.invoke`. O `elec
 - `Home`: botão "Sair (email)"; banner de erro quando a busca falha; `NOT_AUTHENTICATED` volta ao Login.
 - `EmailPreview`: modal com `<iframe sandbox="" srcdoc={html}>` — sem scripts, sem acesso ao pai, sem navegação. A CSP da página bloqueia imagens remotas (efeito colateral desejado: bloqueia pixels de rastreamento). Substitui o `window.open` em `TableViagem.tsx`.
 
+**Design visual:** esta spec define apenas comportamento e estrutura das telas (Login, banner de erro, botão "Sair", `EmailPreview`). O visual — layout, tipografia, cores, estados, microinterações — será planejado com a skill `impeccable` como etapa própria do plano de implementação, antes de codificar os componentes de UI.
+
 ### Remoções
 
 `MAIN_VITE_EMAIL`, `MAIN_VITE_PASSWORD`, `.env.example`, `src/types/env.d.ts`, `rejectUnauthorized: false`.

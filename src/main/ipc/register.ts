@@ -2,7 +2,7 @@ import { ipcMain, type IpcMainInvokeEvent } from 'electron'
 import { IPC, type Result } from '../../shared/api'
 import type { AuthProvider } from '../auth/AuthProvider'
 import { createAuthHandlers } from './auth'
-import { type FetchEmails, createEmailHandlers } from './emails'
+import { type FetchEmails, type ListPeriods, createEmailHandlers } from './emails'
 
 // Defesa em profundidade: um preload comprometido em um frame que não seja o
 // principal (ex.: um iframe malicioso) não deve conseguir invocar os handlers de IPC.
@@ -20,7 +20,11 @@ function guardMainFrame<Args extends unknown[], T>(
   }
 }
 
-export function registerIpc(deps: { auth: AuthProvider; fetchEmails: FetchEmails }): void {
+export function registerIpc(deps: {
+  auth: AuthProvider
+  fetchEmails: FetchEmails
+  listPeriods: ListPeriods
+}): void {
   const auth = createAuthHandlers(deps.auth)
   const emails = createEmailHandlers(deps)
 
@@ -34,4 +38,5 @@ export function registerIpc(deps: { auth: AuthProvider; fetchEmails: FetchEmails
     IPC.emailsFetch,
     guardMainFrame((month: unknown, year: unknown) => emails.fetch(month, year))
   )
+  ipcMain.handle(IPC.emailsPeriods, guardMainFrame(() => emails.periods()))
 }

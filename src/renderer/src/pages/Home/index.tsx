@@ -9,40 +9,27 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { formatToBRL } from 'brazilian-values'
-import { LogOut } from 'lucide-react'
-import React, { useState } from 'react'
+import { Car, CircleX, Coins, LogOut } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import type { AppErrorShape } from '../../../../shared/api'
+import type { AppErrorShape, ReceiptPeriod } from '../../../../shared/api'
 import { ErrorBanner } from './ui/ErrorBanner'
 import { TableEmail } from './ui/TableEmail'
 
-function genYears(yearStart: number, yearEnd: number): string[] {
-  const years: string[] = []
-  for (let year = yearStart; year >= yearEnd; year--) {
-    years.push(year.toString())
-  }
-  return years
+const MONTH_NAMES: Record<number, string> = {
+  1: 'Janeiro',
+  2: 'Fevereiro',
+  3: 'Março',
+  4: 'Abril',
+  5: 'Maio',
+  6: 'Junho',
+  7: 'Julho',
+  8: 'Agosto',
+  9: 'Setembro',
+  10: 'Outubro',
+  11: 'Novembro',
+  12: 'Dezembro'
 }
-
-const months = [
-  { label: 'Janeiro', value: '1' },
-  { label: 'Fevereiro', value: '2' },
-  { label: 'Março', value: '3' },
-  { label: 'Abril', value: '4' },
-  { label: 'Maio', value: '5' },
-  { label: 'Junho', value: '6' },
-  { label: 'Julho', value: '7' },
-  { label: 'Agosto', value: '8' },
-  { label: 'Setembro', value: '9' },
-  { label: 'Outubro', value: '10' },
-  { label: 'Novembro', value: '11' },
-  { label: 'Dezembro', value: '12' }
-]
-
-const years = genYears(new Date().getFullYear(), 2010).map((year) => ({
-  label: year.toString(),
-  value: year.toString()
-}))
 
 interface FormData {
   month: string
@@ -57,18 +44,22 @@ interface HomeProps {
 /** `id` muda a cada erro para o banner remontar e ser anunciado de novo. */
 type HomeError = AppErrorShape & { id: number }
 
+const UNKNOWN_ERROR: AppErrorShape = { code: 'UNKNOWN', message: 'Erro inesperado. Tente novamente.' }
+
 const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
-  const { control, handleSubmit } = useForm<FormData>({
-    defaultValues: {
-      month: (new Date().getMonth() + 1).toString(),
-      year: new Date().getFullYear().toString()
-    }
+  const { control, handleSubmit, watch, setValue } = useForm<FormData>({
+    defaultValues: { month: '', year: '' }
   })
 
   const [emails, setEmails] = useState<Email[]>([])
+  const [searched, setSearched] = useState<{ month: number; year: number } | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<HomeError | null>(null)
   const [signingOut, setSigningOut] = useState(false)
+  const [periods, setPeriods] = useState<ReceiptPeriod[] | null>(null)
+  const [periodsLoading, setPeriodsLoading] = useState(true)
+
+  const selectedYear = watch('year')
 
   const showError = ({ code, message }: AppErrorShape): void =>
     setError((previous) => ({ code, message, id: (previous?.id ?? 0) + 1 }))
@@ -85,17 +76,72 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
   }
 
   const fetchEmails = async (data: FormData): Promise<void> => {
+    if (!data.month || !data.year) return
     setLoading(true)
     try {
       const result = await window.api.emails.fetch(Number(data.month), Number(data.year))
       if (result.ok) {
         setEmails(result.data)
+        setSearched({ month: Number(data.month), year: Number(data.year) })
         setError(null)
       } else if (result.error.code === 'NOT_AUTHENTICATED') onSignedOut()
       else showError(result.error)
+    } catch {
+      showError(UNKNOWN_ERROR)
     } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadPeriods = async (): Promise<void> => {
+      try {
+        const result = await window.api.emails.periods()
+        if (cancelled) return
+        if (result.ok) {
+          setPeriods(result.data)
+          const [latest] = result.data
+          if (latest) {
+            const latestMonth = latest.months[0]
+            const formData: FormData = {
+              year: latest.year.toString(),
+              month: latestMonth.toString()
+            }
+            setValue('year', formData.year)
+            setValue('month', formData.month)
+            await fetchEmails(formData)
+          }
+        } else if (result.error.code === 'NOT_AUTHENTICATED') {
+          onSignedOut()
+        } else {
+          showError(result.error)
+        }
+      } catch {
+        if (!cancelled) showError(UNKNOWN_ERROR)
+      } finally {
+        if (!cancelled) setPeriodsLoading(false)
+      }
+    }
+
+    loadPeriods()
+
+    return () => {
+      cancelled = true
+    }
+    // Executa apenas na montagem: carrega os períodos e dispara a primeira busca.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const yearOptions = periods ?? []
+  const monthOptions = periods?.find((period) => period.year.toString() === selectedYear)?.months ?? []
+  const noReceipts = !periodsLoading && periods !== null && periods.length === 0
+
+  const handleYearChange = (year: string, onChange: (value: string) => void): void => {
+    onChange(year)
+    const found = periods?.find((period) => period.year.toString() === year)
+    if (found) setValue('month', found.months[0].toString())
   }
 
   return (
@@ -121,55 +167,65 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
       <div className="animate-rise p-4 gap-4 flex flex-col flex-1">
         <div className="p-4">
           <h1 className="text-3xl font-bold text-center">Buscar Recibos da Uber</h1>
-          <form
-            onSubmit={handleSubmit(fetchEmails)}
-            className="flex gap-4 items-center justify-center mt-4"
-          >
-            {/* Dropdown de Mês */}
-            <Controller
-              name="month"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Mês" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {months.map((month) => (
-                      <SelectItem key={month.value} value={month.value}>
-                        {month.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+          {noReceipts ? (
+            <p className="mt-4 text-center text-muted-foreground">
+              Não encontramos recibos da Uber neste Gmail.
+            </p>
+          ) : (
+            <form
+              onSubmit={handleSubmit(fetchEmails)}
+              className="flex gap-4 items-center justify-center mt-4"
+            >
+              {/* Dropdown de Mês */}
+              <Controller
+                name="month"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value} disabled={periodsLoading}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder={periodsLoading ? 'Carregando períodos…' : 'Mês'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {monthOptions.map((month) => (
+                        <SelectItem key={month} value={month.toString()}>
+                          {MONTH_NAMES[month]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
 
-            {/* Dropdown de Ano */}
-            <Controller
-              name="year"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Ano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((year) => (
-                      <SelectItem key={year.value} value={year.value}>
-                        {year.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+              {/* Dropdown de Ano */}
+              <Controller
+                name="year"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(year) => handleYearChange(year, field.onChange)}
+                    value={field.value}
+                    disabled={periodsLoading}
+                  >
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue placeholder={periodsLoading ? 'Carregando períodos…' : 'Ano'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {yearOptions.map((period) => (
+                        <SelectItem key={period.year} value={period.year.toString()}>
+                          {period.year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
 
-            {/* Botão de Buscar */}
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Buscando...' : 'Buscar Emails'}
-            </Button>
-          </form>
+              {/* Botão de Buscar */}
+              <Button type="submit" disabled={loading || periodsLoading}>
+                {loading ? 'Buscando...' : 'Buscar Emails'}
+              </Button>
+            </form>
+          )}
           {error && (
             <div className="mx-auto mt-4 w-full max-w-[1180px]">
               <ErrorBanner
@@ -186,6 +242,10 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
             <div className="flex justify-center items-center">
               <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-foreground"></div>
             </div>
+          ) : searched && emails.length === 0 ? (
+            <p className="text-center text-muted-foreground">
+              Nenhum recibo da Uber em {MONTH_NAMES[searched.month]} de {searched.year}.
+            </p>
           ) : (
             <TableEmail emails={emails} />
           )}
@@ -211,17 +271,17 @@ const Home: React.FC<HomeProps> = ({ email, onSignedOut }) => {
               config={{
                 recarga: {
                   label: 'Recarga',
-                  icon: () => '🪙',
+                  icon: Coins,
                   color: 'var(--chart-3)'
                 },
                 viagem: {
                   label: 'Viagem',
-                  icon: () => '🚗',
+                  icon: Car,
                   color: 'var(--chart-2)'
                 },
                 cancelada: {
                   label: 'Cancelada',
-                  icon: () => '🔴',
+                  icon: CircleX,
                   color: 'var(--chart-5)'
                 }
               }}

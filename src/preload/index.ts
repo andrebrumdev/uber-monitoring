@@ -8,7 +8,8 @@ const api: Api = {
     logout: () => ipcRenderer.invoke(IPC.authLogout)
   },
   emails: {
-    fetch: (month, year) => ipcRenderer.invoke(IPC.emailsFetch, month, year)
+    fetch: (month, year) => ipcRenderer.invoke(IPC.emailsFetch, month, year),
+    periods: () => ipcRenderer.invoke(IPC.emailsPeriods)
   }
 }
 

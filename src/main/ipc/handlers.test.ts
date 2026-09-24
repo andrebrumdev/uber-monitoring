@@ -50,9 +50,11 @@ describe('auth handlers', () => {
 describe('emails handler', () => {
   const currentYear = new Date().getFullYear()
   let fetchEmails: ReturnType<typeof vi.fn>
+  let listPeriods: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
     fetchEmails = vi.fn(async () => [])
+    listPeriods = vi.fn(async () => [])
   })
 
   it.each([
@@ -64,38 +66,83 @@ describe('emails handler', () => {
     [3, 2003],
     [3, currentYear + 1]
   ])('rejeita mês %j / ano %j', async (month, year) => {
-    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails }).fetch(month, year)
+    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails, listPeriods }).fetch(
+      month,
+      year
+    )
     expect(result).toMatchObject({ ok: false, error: { code: 'INVALID_INPUT' } })
     expect(fetchEmails).not.toHaveBeenCalled()
   })
 
   it('exige login', async () => {
     const auth = fakeAuth({ getImapAuth: vi.fn(async () => null) })
-    const result = await createEmailHandlers({ auth, fetchEmails }).fetch(3, currentYear)
+    const result = await createEmailHandlers({ auth, fetchEmails, listPeriods }).fetch(
+      3,
+      currentYear
+    )
     expect(result).toMatchObject({ ok: false, error: { code: 'NOT_AUTHENTICATED' } })
     expect(fetchEmails).not.toHaveBeenCalled()
   })
 
   it('busca com a credencial do provider', async () => {
     fetchEmails.mockResolvedValue([{ subject: 's' }])
-    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails }).fetch(3, 2025)
+    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails, listPeriods }).fetch(
+      3,
+      2025
+    )
     expect(fetchEmails).toHaveBeenCalledWith({ user: 'eu@gmail.com', pass: 'p' }, 3, 2025)
     expect(result).toEqual({ ok: true, data: [{ subject: 's' }] })
   })
 
   it('senha revogada vira AUTH_FAILED', async () => {
     fetchEmails.mockRejectedValue(new AppError('AUTH_FAILED', 'E-mail ou senha de app incorretos.'))
-    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails }).fetch(3, 2025)
+    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails, listPeriods }).fetch(
+      3,
+      2025
+    )
     expect(result).toMatchObject({ ok: false, error: { code: 'AUTH_FAILED' } })
   })
 
   it('erro inesperado não vaza mensagem interna', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     fetchEmails.mockRejectedValue(new Error('stack interna'))
-    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails }).fetch(3, 2025)
+    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails, listPeriods }).fetch(
+      3,
+      2025
+    )
     expect(result).toEqual({
       ok: false,
       error: { code: 'UNKNOWN', message: 'Erro inesperado. Tente novamente.' }
     })
+  })
+})
+
+describe('periods handler', () => {
+  let fetchEmails: ReturnType<typeof vi.fn>
+  let listPeriods: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    fetchEmails = vi.fn(async () => [])
+    listPeriods = vi.fn(async () => [])
+  })
+
+  it('exige login', async () => {
+    const auth = fakeAuth({ getImapAuth: vi.fn(async () => null) })
+    const result = await createEmailHandlers({ auth, fetchEmails, listPeriods }).periods()
+    expect(result).toMatchObject({ ok: false, error: { code: 'NOT_AUTHENTICATED' } })
+    expect(listPeriods).not.toHaveBeenCalled()
+  })
+
+  it('retorna os períodos com recibo usando a credencial do provider', async () => {
+    listPeriods.mockResolvedValue([{ year: 2025, months: [8, 7] }])
+    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails, listPeriods }).periods()
+    expect(listPeriods).toHaveBeenCalledWith({ user: 'eu@gmail.com', pass: 'p' })
+    expect(result).toEqual({ ok: true, data: [{ year: 2025, months: [8, 7] }] })
+  })
+
+  it('propaga AUTH_FAILED do provider', async () => {
+    listPeriods.mockRejectedValue(new AppError('AUTH_FAILED', 'E-mail ou senha de app incorretos.'))
+    const result = await createEmailHandlers({ auth: fakeAuth(), fetchEmails, listPeriods }).periods()
+    expect(result).toMatchObject({ ok: false, error: { code: 'AUTH_FAILED' } })
   })
 })

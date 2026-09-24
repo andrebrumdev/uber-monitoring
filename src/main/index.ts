@@ -6,6 +6,7 @@ import { createCredentialStore } from './auth/credentialStore'
 import { safeStorageEncryptor } from './auth/safeStorageEncryptor'
 import { fetchEmails } from './emailHandler'
 import { verifyImapAuth } from './imap/client'
+import { listReceiptPeriods } from './imap/periods'
 import { registerIpc } from './ipc/register'
 import { createMainWindow } from './window'
 
@@ -26,7 +27,7 @@ app.whenReady().then(() => {
     safeStorageEncryptor
   )
   const auth = createAppPasswordProvider({ store, verify: verifyImapAuth })
-  registerIpc({ auth, fetchEmails })
+  registerIpc({ auth, fetchEmails, listPeriods: listReceiptPeriods })
 
   createMainWindow()
 
